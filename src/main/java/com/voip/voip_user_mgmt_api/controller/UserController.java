@@ -24,6 +24,11 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping("/by-id")
+    public User getUserById(@RequestParam Long id) {
+        return userService.getUserById(id);
+    }
+
     @PostMapping("/save")
     public void saveUser(@RequestBody User user) {
         userService.saveUser(user);
