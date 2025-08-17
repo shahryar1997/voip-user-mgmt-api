@@ -6,7 +6,7 @@ A Spring Boot REST API for managing users in a VoIP system. This application pro
 
 - **User Management**: Create, read, update, and delete VoIP users
 - **RESTful API**: Clean REST endpoints following best practices
-- **In-Memory Database**: H2 database for development and testing
+- **PostgreSQL Database**: Robust relational database for production use
 - **JPA/Hibernate**: Modern data persistence with Spring Data JPA
 - **Comprehensive Testing**: Unit tests with MockMvc for all endpoints
 
@@ -15,7 +15,7 @@ A Spring Boot REST API for managing users in a VoIP system. This application pro
 - **Java 17**
 - **Spring Boot 3.5.4**
 - **Spring Data JPA**
-- **H2 Database** (in-memory)
+- **PostgreSQL Database**
 - **Maven** (build tool)
 - **JUnit 5** (testing)
 
@@ -23,6 +23,7 @@ A Spring Boot REST API for managing users in a VoIP system. This application pro
 
 - Java 17 or higher
 - Maven 3.6 or higher
+- PostgreSQL 12 or higher
 - Git
 
 ## Getting Started
@@ -34,7 +35,28 @@ git clone <your-repository-url>
 cd voip-user-mgmt-api
 ```
 
-### 2. Run the Application
+### 2. Set Up PostgreSQL Database
+
+1. Install PostgreSQL if not already installed
+2. Create a new database:
+```sql
+CREATE DATABASE voip_user_mgmt;
+CREATE USER voip_user WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE voip_user_mgmt TO voip_user;
+```
+
+### 3. Configure Database Connection
+
+Update `application.properties` with your PostgreSQL credentials:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/voip_user_mgmt
+spring.datasource.username=voip_user
+spring.datasource.password=your_password
+spring.datasource.driver-class-name=org.postgresql.Driver
+```
+
+### 4. Run the Application
 
 #### Option A: Using Maven Wrapper (Recommended)
 ```bash
@@ -50,13 +72,10 @@ cd voip-user-mgmt-api
 mvn spring-boot:run
 ```
 
-### 3. Access the Application
+### 5. Access the Application
 
 - **API Base URL**: http://localhost:8080
-- **H2 Console**: http://localhost:8080/h2-console
-  - JDBC URL: `jdbc:h2:mem:testdb`
-  - Username: `sa`
-  - Password: `password`
+- **Database**: PostgreSQL running on localhost:5432
 
 ## API Endpoints
 
@@ -133,14 +152,24 @@ curl -X DELETE http://localhost:8080/api/user/delete/1
 
 ## Database Configuration
 
-The application uses H2 in-memory database with the following configuration:
+The application uses PostgreSQL database with the following configuration:
 
-- **Database**: H2 (in-memory)
-- **URL**: `jdbc:h2:mem:testdb`
-- **Username**: `sa`
-- **Password**: `password`
+- **Database**: PostgreSQL
+- **URL**: `jdbc:postgresql://localhost:5432/voip_user_mgmt`
+- **Username**: `voip_user`
+- **Password**: `your_password`
 - **DDL Auto**: `update` (automatically creates/updates tables)
-- **Console**: Enabled at `/h2-console`
+- **Connection Pool**: HikariCP (default Spring Boot connection pool)
+
+### Environment Variables
+
+You can also configure the database using environment variables:
+
+```bash
+export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/voip_user_mgmt
+export SPRING_DATASOURCE_USERNAME=voip_user
+export SPRING_DATASOURCE_PASSWORD=your_password
+```
 
 ## Project Structure
 
@@ -168,7 +197,8 @@ Key configuration options in `application.properties`:
 
 - `spring.jpa.show-sql=true` - Shows SQL queries in console
 - `spring.jpa.hibernate.ddl-auto=update` - Auto-updates database schema
-- `spring.h2.console.enabled=true` - Enables H2 database console
+- `spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect` - PostgreSQL dialect
+- `spring.datasource.hikari.maximum-pool-size=10` - Connection pool size
 
 ## Deployment
 
@@ -180,6 +210,39 @@ Key configuration options in `application.properties`:
 ### Run JAR
 ```bash
 java -jar target/voip-user-mgmt-api-0.0.1-SNAPSHOT.jar
+```
+
+### Docker Deployment
+
+Create a `docker-compose.yml` file for easy deployment:
+
+```yaml
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: voip_user_mgmt
+      POSTGRES_USER: voip_user
+      POSTGRES_PASSWORD: your_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/voip_user_mgmt
+      SPRING_DATASOURCE_USERNAME: voip_user
+      SPRING_DATASOURCE_PASSWORD: your_password
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
 ```
 
 ## Contributing
