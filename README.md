@@ -2,6 +2,30 @@
 
 A Spring Boot REST API for managing users in a VoIP system. This application provides CRUD operations for VoIP users with their names and extensions.
 
+## 🆕 Recent Updates (Latest Release)
+
+### **Comprehensive Validation System & Structured Logging** ✨
+- **🔒 Multi-layer Validation**: Bean validation, business rules, and custom validation logic
+- **📝 Validation Groups**: Separate validation for Create, Update, and PartialUpdate operations
+- **📊 DTOs**: Clean separation between API requests and entity validation
+- **📋 Structured Logging**: Comprehensive logging with SLF4J LoggerFactory
+- **📁 File Logging**: Optimized log rotation with separate files for errors, validation, and general logs
+- **⚡ Performance**: Automatic log rotation, compression, and cleanup
+
+### **New API Endpoints**
+- `POST /api/user/create` - Create user with validation
+- `PUT /api/user/update/{id}` - Update user with validation
+- `GET /api/user/by-extension` - Find user by extension
+- `GET /api/user/check-extension` - Check extension availability
+
+### **Enhanced Features**
+- **Business Rule Validation**: Extension uniqueness, reserved numbers (0000, 9999)
+- **Global Exception Handling**: Consistent error responses with detailed logging
+- **Repository Enhancements**: Extension-based queries and existence checks
+- **Service Layer Improvements**: Comprehensive validation orchestration
+
+---
+
 ## Features
 
 - **User Management**: Create, read, update, and delete VoIP users
@@ -9,6 +33,9 @@ A Spring Boot REST API for managing users in a VoIP system. This application pro
 - **PostgreSQL Database**: Robust relational database for production use
 - **JPA/Hibernate**: Modern data persistence with Spring Data JPA
 - **Comprehensive Testing**: Unit tests with MockMvc for all endpoints
+- **🔒 Advanced Validation**: Multi-layer validation system with business rules
+- **📊 Structured Logging**: Production-ready logging with file rotation
+- **📝 Clean Architecture**: Separation of concerns with DTOs and validation services
 
 ## Technology Stack
 
@@ -90,12 +117,31 @@ http://localhost:8080/api/user
 |--------|----------|-------------|--------------|----------|
 | `GET` | `/all` | Get all users | - | List of users |
 | `GET` | `/by-id?id={id}` | Get user by ID | - | User object |
-| `POST` | `/save` | Create new user | User JSON | - |
-| `PUT` | `/update/{id}` | Update user by ID | User JSON | - |
+| `GET` | `/by-extension?extension={ext}` | Get user by extension | - | User object |
+| `GET` | `/check-extension?extension={ext}` | Check if extension is available | - | Boolean |
+| `POST` | `/create` | Create new user with validation | UserCreateRequest JSON | Created user |
+| `PUT` | `/update/{id}` | Update user by ID with validation | UserUpdateRequest JSON | Updated user |
 | `DELETE` | `/delete/{id}` | Delete user by ID | - | - |
 
-### User Model
+### Request/Response Models
 
+#### UserCreateRequest (for POST /create)
+```json
+{
+  "name": "John Doe",
+  "extension": "1001"
+}
+```
+
+#### UserUpdateRequest (for PUT /update/{id})
+```json
+{
+  "name": "John Doe Updated",
+  "extension": "1002"
+}
+```
+
+#### User Response Model
 ```json
 {
   "id": 1,
@@ -106,14 +152,14 @@ http://localhost:8080/api/user
 
 **Fields:**
 - `id`: Unique identifier (auto-generated)
-- `name`: User's full name
-- `extension`: VoIP extension number
+- `name`: User's full name (2-100 characters, letters/spaces/hyphens/apostrophes only)
+- `extension`: VoIP extension number (4-6 digits, must be unique, reserved: 0000, 9999)
 
 ### Example API Calls
 
 #### Create a User
 ```bash
-curl -X POST http://localhost:8080/api/user/save \
+curl -X POST http://localhost:8080/api/user/create \
   -H "Content-Type: application/json" \
   -d '{"name": "John Doe", "extension": "1001"}'
 ```
@@ -126,6 +172,16 @@ curl http://localhost:8080/api/user/all
 #### Get User by ID
 ```bash
 curl http://localhost:8080/api/user/by-id?id=1
+```
+
+#### Get User by Extension
+```bash
+curl http://localhost:8080/api/user/by-extension?extension=1001
+```
+
+#### Check Extension Availability
+```bash
+curl http://localhost:8080/api/user/check-extension?extension=1001
 ```
 
 #### Update User
@@ -155,9 +211,9 @@ curl -X DELETE http://localhost:8080/api/user/delete/1
 The application uses PostgreSQL database with the following configuration:
 
 - **Database**: PostgreSQL
-- **URL**: `jdbc:postgresql://localhost:5432/voip_user_mgmt`
-- **Username**: `voip_user`
-- **Password**: `your_password`
+- **URL**: `jdbc:postgresql://192.168.0.108:5432/voip_db`
+- **Username**: `postgres`
+- **Password**: `mysecretpassword`
 - **DDL Auto**: `update` (automatically creates/updates tables)
 - **Connection Pool**: HikariCP (default Spring Boot connection pool)
 
@@ -166,9 +222,9 @@ The application uses PostgreSQL database with the following configuration:
 You can also configure the database using environment variables:
 
 ```bash
-export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/voip_user_mgmt
-export SPRING_DATASOURCE_USERNAME=voip_user
-export SPRING_DATASOURCE_PASSWORD=your_password
+export SPRING_DATASOURCE_URL=jdbc:postgresql://192.168.0.108:5432/voip_db
+export SPRING_DATASOURCE_USERNAME=postgres
+export SPRING_DATASOURCE_PASSWORD=mysecretpassword
 ```
 
 ## Project Structure
@@ -180,25 +236,43 @@ voip-user-mgmt-api/
 │   │   ├── java/
 │   │   │   └── com/voip/voip_user_mgmt_api/
 │   │   │       ├── controller/          # REST controllers
-│   │   │       ├── Entity/              # JPA entities
+│   │   │       ├── Entity/              # JPA entities with validation
+│   │   │       ├── dto/                 # Data Transfer Objects
 │   │   │       ├── repository/          # Data access layer
-│   │   │       ├── services/            # Business logic
+│   │   │       ├── services/            # Business logic & validation
+│   │   │       ├── exceptions/          # Custom exception handling
 │   │   │       └── VoipUserMgmtApiApplication.java
 │   │   └── resources/
-│   │       └── application.properties   # Configuration
+│   │       ├── application.properties   # Configuration
+│   │       └── logback-spring.xml       # Advanced logging configuration
 │   └── test/                            # Test files
+├── logs/                                # Application log files
 ├── pom.xml                              # Maven configuration
-└── README.md                            # This file
+├── README.md                            # This file
+└── VALIDATION_README.md                 # Detailed validation system docs
 ```
 
 ## Configuration
 
 Key configuration options in `application.properties`:
 
-- `spring.jpa.show-sql=true` - Shows SQL queries in console
+- `spring.jpa.show-sql=false` - SQL queries logging (disabled for production)
 - `spring.jpa.hibernate.ddl-auto=update` - Auto-updates database schema
-- `spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect` - PostgreSQL dialect
-- `spring.datasource.hikari.maximum-pool-size=10` - Connection pool size
+- `logging.file.name=logs/voip-user-api.log` - File logging configuration
+- `logging.file.max-size=100MB` - Log file size limit
+- `logging.file.max-history=30` - Log retention period
+
+## Logging Configuration
+
+The application includes comprehensive structured logging:
+
+- **File Logging**: Automatic log rotation with daily and size-based rollover
+- **Separate Log Files**: 
+  - `voip-user-api.log` - General application logs
+  - `errors.log` - Error-only logs
+  - `validation.log` - Validation-specific logs
+- **Log Levels**: Configurable per component (INFO, DEBUG, WARN, ERROR)
+- **Performance**: Asynchronous logging with buffered output
 
 ## Deployment
 
@@ -222,9 +296,9 @@ services:
   postgres:
     image: postgres:15
     environment:
-      POSTGRES_DB: voip_user_mgmt
-      POSTGRES_USER: voip_user
-      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: voip_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
     ports:
       - "5432:5432"
     volumes:
@@ -235,11 +309,13 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/voip_user_mgmt
-      SPRING_DATASOURCE_USERNAME: voip_user
-      SPRING_DATASOURCE_PASSWORD: your_password
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/voip_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: mysecretpassword
     depends_on:
       - postgres
+    volumes:
+      - ./logs:/app/logs
 
 volumes:
   postgres_data:
@@ -252,3 +328,9 @@ volumes:
 3. Make your changes
 4. Add tests for new functionality
 5. Submit a pull request
+
+## Additional Documentation
+
+- **VALIDATION_README.md**: Comprehensive guide to the validation system
+- **Logging**: Advanced logging configuration and usage
+- **API Documentation**: Detailed endpoint specifications and examples

@@ -1,11 +1,15 @@
 package com.voip.voip_user_mgmt_api.Entity;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.groups.Default;
 
 /*
 JSON Format Example:
@@ -23,9 +27,16 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    
+    @NotBlank(message = "Name cannot be empty", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
+    @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
+    @Pattern(regexp = "^[a-zA-Z\\s\\-']+$", message = "Name can only contain letters, spaces, hyphens, and apostrophes", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
     private String name;
+    
+    @NotBlank(message = "Extension cannot be empty", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
+    @Size(min = 4, max = 6, message = "Extension must be between 4 and 6 characters", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
+    @Pattern(regexp = "^[0-9]+$", message = "Extension can only contain numbers", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
     private String extension;
-
 
     // Default constructor required by JPA
     public User() {
@@ -36,6 +47,7 @@ public class User {
         this.name = name;
         this.extension = extension;
     }
+    
     public User(String name, String extension) {
         this.name = name;
         this.extension = extension;
