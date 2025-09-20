@@ -4,6 +4,12 @@ A Spring Boot REST API for managing users in a VoIP system. This application pro
 
 ## 🆕 Recent Updates (Latest Release)
 
+### **Spring Security 6 with JWT Authentication** 🔐
+- **JWT-Based Authentication**: Stateless user login and secure token validation.
+- **Role-Based Authorization (RBAC)**: Endpoints protected by user roles (e.g., `USER`, `ADMIN`).
+- **Protected Endpoints**: All user management actions now require a valid JWT bearer token.
+- **Secure Password Hashing**: Uses `BCryptPasswordEncoder` for credential security.
+
 ### **Comprehensive Validation System & Structured Logging** ✨
 - **🔒 Multi-layer Validation**: Bean validation, business rules, and custom validation logic
 - **📝 Validation Groups**: Separate validation for Create, Update, and PartialUpdate operations
@@ -11,7 +17,6 @@ A Spring Boot REST API for managing users in a VoIP system. This application pro
 - **📋 Structured Logging**: Comprehensive logging with SLF4J LoggerFactory
 - **📁 File Logging**: Optimized log rotation with separate files for errors, validation, and general logs
 - **⚡ Performance**: Automatic log rotation, compression, and cleanup
-
 ### **New API Endpoints**
 - `POST /api/user/create` - Create user with validation
 - `PUT /api/user/update/{id}` - Update user with validation
@@ -28,6 +33,7 @@ A Spring Boot REST API for managing users in a VoIP system. This application pro
 
 ## Features
 
+- **🔐 JWT Security**: Full authentication and authorization flow.
 - **User Management**: Create, read, update, and delete VoIP users
 - **RESTful API**: Clean REST endpoints following best practices
 - **PostgreSQL Database**: Robust relational database for production use
@@ -41,6 +47,7 @@ A Spring Boot REST API for managing users in a VoIP system. This application pro
 
 - **Java 17**
 - **Spring Boot 3.5.4**
+- **Spring Security 6 & JWT (JJWT)**
 - **Spring Data JPA**
 - **PostgreSQL Database**
 - **Maven** (build tool)
