@@ -9,6 +9,7 @@ import com.voip.voip_user_mgmt_api.exceptions.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,11 +20,17 @@ public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final UserValidationService validationService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository, UserValidationService validationService) {
+    public UserService(UserRepository userRepository, UserValidationService validationService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.validationService = validationService;
+        this.passwordEncoder = passwordEncoder;
+
+        String encodedPassword = passwordEncoder.encode("password123");
+        System.out.println("Encoded password for '" + "password123" + "': " + encodedPassword);
+
         log.info("UserService initialized with repository: {} and validation service: {}", 
                 userRepository.getClass().getSimpleName(), validationService.getClass().getSimpleName());
     }
@@ -32,36 +39,44 @@ public class UserService {
      * Creates a new user with comprehensive validation
      */
     public User createUser(UserCreateRequest request) {
-        log.info("Creating new user with name: {}, extension: {}", request.getName(), request.getExtension());
+        log.info("Creating new user with username: {}, name: {}, extension: {}", 
+                request.getUsername(), request.getName(), request.getExtension());
         
         try {
+            // Check if username already exists
+            if (userRepository.existsByUsername(request.getUsername())) {
+                log.warn("User creation failed: Username {} is already in use", request.getUsername());
+                throw new ValidationException("Username " + request.getUsername() + " is already in use");
+            }
+            
+            // Check if extension already exists
+            if (userRepository.existsByExtension(request.getExtension())) {
+                log.warn("User creation failed: Extension {} is already in use", request.getExtension());
+                throw new ValidationException("Extension " + request.getExtension() + " is already in use");
+            }
+            
             // Validate the request DTO
             validationService.validateForCreate(UserMapper.toEntity(request));
             
-            // Convert to entity
+            // Convert to entity and encode password
             User user = UserMapper.toEntity(request);
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
             
             // Validate business rules
             validationService.validateBusinessRules(user, null);
             
-            // Check if extension already exists
-            if (userRepository.existsByExtension(user.getExtension())) {
-                log.warn("User creation failed: Extension {} is already in use", user.getExtension());
-                throw new ValidationException("Extension " + user.getExtension() + " is already in use");
-            }
-            
             User savedUser = userRepository.save(user);
-            log.info("User created successfully with ID: {}, name: {}, extension: {}", 
-                    savedUser.getId(), savedUser.getName(), savedUser.getExtension());
+            log.info("User created successfully with ID: {}, username: {}, name: {}, extension: {}", 
+                    savedUser.getId(), savedUser.getUsername(), savedUser.getName(), savedUser.getExtension());
             return savedUser;
             
         } catch (ValidationException e) {
-            log.error("User creation failed for name: {}, extension: {}: {}", 
-                    request.getName(), request.getExtension(), e.getMessage());
+            log.error("User creation failed for username: {}, name: {}, extension: {}: {}", 
+                    request.getUsername(), request.getName(), request.getExtension(), e.getMessage());
             throw e;
         } catch (Exception e) {
-            log.error("Unexpected error during user creation for name: {}, extension: {}", 
-                    request.getName(), request.getExtension(), e.getMessage(), e);
+            log.error("Unexpected error during user creation for username: {}, name: {}, extension: {}", 
+                    request.getUsername(), request.getName(), request.getExtension(), e.getMessage(), e);
             throw new ValidationException("Failed to create user: " + e.getMessage());
         }
     }

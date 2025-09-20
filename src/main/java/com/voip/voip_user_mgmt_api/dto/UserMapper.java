@@ -16,6 +16,8 @@ public class UserMapper {
         }
         
         User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(request.getPassword());
         user.setName(request.getName());
         user.setExtension(request.getExtension());
         return user;
@@ -60,7 +62,7 @@ public class UserMapper {
             return null;
         }
         
-        return new UserCreateRequest(user.getName(), user.getExtension());
+        return new UserCreateRequest(user.getUsername(), user.getPassword(), user.getName(), user.getExtension());
     }
 
     /**

@@ -15,6 +15,8 @@ import jakarta.validation.groups.Default;
 JSON Format Example:
 {
   "id": 1,
+  "username": "johndoe",
+  "password": "hashedPassword",
   "name": "John Doe",
   "extension": "1001"
 }
@@ -27,6 +29,15 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    
+    @NotBlank(message = "Username cannot be empty", groups = {ValidationGroups.Create.class})
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters", groups = {ValidationGroups.Create.class})
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Username can only contain letters, numbers, and underscores", groups = {ValidationGroups.Create.class})
+    private String username;
+    
+    @NotBlank(message = "Password cannot be empty", groups = {ValidationGroups.Create.class})
+    @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters", groups = {ValidationGroups.Create.class})
+    private String password;
     
     @NotBlank(message = "Name cannot be empty", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
     @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
@@ -42,13 +53,17 @@ public class User {
     public User() {
     }
 
-    public User(Long id, String name, String extension) {
+    public User(Long id, String username, String password, String name, String extension) {
         this.id = id;
+        this.username = username;
+        this.password = password;
         this.name = name;
         this.extension = extension;
     }
     
-    public User(String name, String extension) {
+    public User(String username, String password, String name, String extension) {
+        this.username = username;
+        this.password = password;
         this.name = name;
         this.extension = extension;
     }
@@ -59,6 +74,22 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getName() {
@@ -80,7 +111,7 @@ public class User {
     @Override
     public String toString() {
         return String.format(
-                "Customer[id=%d, name='%s', extension='%s']",
-                id, name, extension);
+                "User[id=%d, username='%s', name='%s', extension='%s']",
+                id, username, name, extension);
     }
 }

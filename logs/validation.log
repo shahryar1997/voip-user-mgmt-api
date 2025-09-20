@@ -1,13 +1,1 @@
-2025-08-23 17:52:00.875 [main] INFO  c.v.v.services.UserValidationService - UserValidationService initialized with validator: LocalValidatorFactoryBean
-2025-08-23 17:52:39.830 [http-nio-8080-exec-2] DEBUG c.v.v.services.UserValidationService - Starting validation for user creation: me nana
-2025-08-23 17:52:39.830 [http-nio-8080-exec-2] DEBUG c.v.v.services.UserValidationService - Validating user with groups: Create, user: me nana
-2025-08-23 17:52:39.855 [http-nio-8080-exec-2] DEBUG c.v.v.services.UserValidationService - Bean validation passed for user: me nana
-2025-08-23 17:52:39.855 [http-nio-8080-exec-2] DEBUG c.v.v.services.UserValidationService - User creation validation completed successfully for: me nana
-2025-08-23 17:52:39.857 [http-nio-8080-exec-2] DEBUG c.v.v.services.UserValidationService - Validating business rules for user: me nana, existing extension: null
-2025-08-23 17:52:39.857 [http-nio-8080-exec-2] DEBUG c.v.v.services.UserValidationService - Extension changed, validating new extension: 9787
-2025-08-23 17:52:39.857 [http-nio-8080-exec-2] DEBUG c.v.v.services.UserValidationService - Validating extension format: 9787
-2025-08-23 17:52:39.857 [http-nio-8080-exec-2] DEBUG c.v.v.services.UserValidationService - Extension format validation passed: 9787
-2025-08-23 17:52:39.857 [http-nio-8080-exec-2] DEBUG c.v.v.services.UserValidationService - Business rule validation completed successfully for user: me nana
-2025-08-23 17:53:13.368 [http-nio-8080-exec-3] DEBUG c.v.v.services.UserValidationService - Starting validation for user creation: me nana
-2025-08-23 17:53:13.368 [http-nio-8080-exec-3] DEBUG c.v.v.services.UserValidationService - Validating user with groups: Create, user: me nana
-2025-08-23 17:53:13.371 [http-nio-8080-exec-3] WARN  c.v.v.services.UserValidationService - Validation violations found for user me nana: extension: Extension must be between 4 and 6 characters; extension: Extension can only contain numbers
+2025-09-13 16:33:53.156 [main] INFO  c.v.v.services.UserValidationService - UserValidationService initialized with validator: LocalValidatorFactoryBean
