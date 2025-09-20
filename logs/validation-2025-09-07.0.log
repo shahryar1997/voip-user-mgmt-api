@@ -1,0 +1,9 @@
+2025-09-07 17:58:49.235 [main] INFO  c.v.v.services.UserValidationService - UserValidationService initialized with validator: LocalValidatorFactoryBean
+2025-09-07 18:03:30.164 [main] INFO  c.v.v.services.UserValidationService - UserValidationService initialized with validator: LocalValidatorFactoryBean
+2025-09-07 18:11:34.313 [main] INFO  c.v.v.services.UserValidationService - UserValidationService initialized with validator: LocalValidatorFactoryBean
+2025-09-07 21:27:41.419 [main] INFO  c.v.v.services.UserValidationService - UserValidationService initialized with validator: LocalValidatorFactoryBean
+2025-09-07 21:28:28.046 [main] INFO  c.v.v.services.UserValidationService - UserValidationService initialized with validator: LocalValidatorFactoryBean
+2025-09-07 21:53:16.453 [main] INFO  c.v.v.services.UserValidationService - UserValidationService initialized with validator: LocalValidatorFactoryBean
+2025-09-07 22:06:55.236 [main] INFO  c.v.v.services.UserValidationService - UserValidationService initialized with validator: LocalValidatorFactoryBean
+2025-09-07 22:16:01.385 [main] INFO  c.v.v.services.UserValidationService - UserValidationService initialized with validator: LocalValidatorFactoryBean
+2025-09-07 22:28:43.554 [main] INFO  c.v.v.services.UserValidationService - UserValidationService initialized with validator: LocalValidatorFactoryBean
